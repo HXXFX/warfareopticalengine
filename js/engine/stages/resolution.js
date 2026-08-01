@@ -20,11 +20,11 @@ import { PIXEL_SHAPES, getShape, minCellFor, brightnessGain } from '../pixelshap
 export const id = 'resolution';
 export const params = ['resolution', 'pixelShape', 'dither'];
 
-/** Coarsest the slider can go. At 100 the image is ~18 cells wide. */
+/** Coarsest the slider can go. At resolution 0 the image is ~18 cells wide. */
 const MIN_COLS = 18;
 
 /**
- * Finest the slider maps to, at resolution = 1.
+ * Finest the slider maps to, just below resolution = 100.
  *
  * This is a FIXED number, deliberately not the image width: the slider means
  * "give me N cells across", so a preview and a 4000px export land on the same
@@ -70,13 +70,18 @@ export const DITHER_MODES = [
 /**
  * How many cells across for a given slider value.
  *
- * Interpolated geometrically, so each slider step is a constant *ratio* change
- * rather than a constant pixel change — which is how the eye reads coarseness.
+ * The slider reads as RESOLUTION, so it runs the same way round as the word:
+ * 100 is full detail and 0 is coarsest. Internally the maths wants the
+ * opposite — `t` is how far the image has been degraded — hence the inversion
+ * on the first line.
  *
- * Slider 0 is a true bypass: the cell grid becomes the native pixel grid.
+ * Interpolated geometrically, so each slider step is a constant *ratio* change
+ * rather than a constant pixel change, which is how the eye reads coarseness.
+ *
+ * Resolution 100 is a true bypass: the cell grid becomes the native pixel grid.
  */
 export function columnsFor(width, resolution, shapeId) {
-  const t = clamp01(resolution / 100);
+  const t = clamp01(1 - resolution / 100);
 
   const cols =
     t === 0

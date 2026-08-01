@@ -23,10 +23,10 @@ export const BASE_PRESET = {
   contrast: 15,
   lightAreas: 30,
   darkAreas: -30,
-  saturation: 0,
+  saturation: 0, // the look is monochrome; Reset returns to 100
 
   // Structure
-  resolution: 24,
+  resolution: 76, // 100 is native detail, so this rebuilds at ~310 cells wide
   pixelShape: 'hex',
   dither: 'none',
 

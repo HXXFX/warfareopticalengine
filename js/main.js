@@ -45,7 +45,12 @@ import {
 const PREVIEW_MIN = 700; // floor for the preview
 const PREVIEW_MAX = 1500; // ceiling for the preview
 const EXPORT_MAX = 8000; // guard against enormous files exhausting memory
-const STORAGE_KEY = 'warfare-optical-engine/params';
+/**
+ * Versioned: the meaning of `resolution` was inverted and `saturation` changed
+ * its default, so settings saved by an older build would be misread. Bumping
+ * the key retires them cleanly instead of restoring a wrong-looking image.
+ */
+const STORAGE_KEY = 'warfare-optical-engine/params/v2';
 
 /**
  * Bundled image loaded at start-up so the app opens on a working result

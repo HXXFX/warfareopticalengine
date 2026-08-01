@@ -75,8 +75,11 @@ export const CONTROL_GROUPS = [
         min: 0,
         max: 100,
         step: 1,
-        default: 0,
-        hint: '0 is fully monochrome. Raise it to let the original colour back in.',
+        // Defaults are what Reset returns to, so they describe an untouched
+        // image — 100 keeps the original colour. The monochrome look belongs
+        // to BASE_PRESET in autoadjust.js, not here.
+        default: 100,
+        hint: '100 keeps the original colour. Lower it toward 0 for monochrome.',
       },
     ],
   },
@@ -92,8 +95,8 @@ export const CONTROL_GROUPS = [
         min: 0,
         max: 100,
         step: 1,
-        default: 0,
-        hint: 'Coarseness of the rebuild. 0 keeps native detail, 100 is ~18 cells wide.',
+        default: 100,
+        hint: '100 keeps native detail. Lower it to rebuild the image from coarser cells — 0 is ~18 cells wide.',
       },
       {
         id: 'pixelShape',
@@ -101,7 +104,7 @@ export const CONTROL_GROUPS = [
         type: 'select',
         options: PIXEL_SHAPES.map((s) => ({ value: s.id, label: s.label })),
         default: 'square',
-        hint: 'Needs some Resolution to be visible — cells are forced to at least 3px.',
+        hint: 'Lower the Resolution to give the shape room. Cells are never smaller than 3px.',
       },
       {
         id: 'dither',
