@@ -6,6 +6,10 @@ white print border.
 
 **[Open the app](https://hxxfx.github.io/warfareopticalengine/)**
 
+The app opens on a sample image with the tone controls already set, so you can
+start moving sliders straight away. Drop in your own photo, or use **Open**, to
+replace it.
+
 ## Features
 
 - **Tone** — contrast, light areas, dark areas and saturation, each acting on

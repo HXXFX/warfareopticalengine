@@ -47,13 +47,27 @@ const PREVIEW_MAX = 1500; // ceiling for the preview
 const EXPORT_MAX = 8000; // guard against enormous files exhausting memory
 const STORAGE_KEY = 'warfare-optical-engine/params';
 
+/**
+ * Bundled image loaded at start-up so the app opens on a working result
+ * instead of an empty drop zone. Dropping or opening any file replaces it.
+ */
+const SAMPLE_IMAGE = 'assets/sample.jpg';
+
 /* ------------------------------------------------------------------ *
  * State
  * ------------------------------------------------------------------ */
 
+/**
+ * True when the user has settings from a previous visit. A first-time visitor
+ * gets the sample auto-adjusted; a returning one keeps whatever they had.
+ * Set by loadParams(), which runs while `state` below is being built.
+ */
+let hadSavedParams = false;
+
 const state = {
   sourceImage: null,
   sourceName: '',
+  isSample: false, // showing the bundled image rather than the user's own
   previewSource: null, // untouched ImageData, screen sized
   previewEdge: 0,
   lastResult: null, // last processed ImageData, for the compare toggle
@@ -75,6 +89,7 @@ const dom = {
   fileInput: document.getElementById('file-input'),
   panel: document.getElementById('panel'),
   status: document.getElementById('status'),
+  btnOpen: document.getElementById('btn-open'),
   btnAuto: document.getElementById('btn-auto'),
   btnReset: document.getElementById('btn-reset'),
   btnCompare: document.getElementById('btn-compare'),
@@ -112,23 +127,65 @@ attachDropZone(dom.stage, handleFile);
 attachDropZone(dom.dropZone, handleFile);
 dom.dropZone.addEventListener('click', () => dom.fileInput.click());
 
-async function handleFile(file) {
+// The drop zone is hidden once an image is on screen, and the sample means
+// that is true from the start — so the toolbar carries the way to browse.
+dom.btnOpen.addEventListener('click', () => dom.fileInput.click());
+
+/**
+ * @param {File} file
+ * @param {object} [opts]
+ * @param {boolean} [opts.isSample]    this is the bundled image, not the user's
+ * @param {boolean} [opts.autoAdjust]  run Auto Adjust once it has loaded
+ */
+async function handleFile(file, { isSample = false, autoAdjust: runAuto = false } = {}) {
   try {
     setStatus('Decoding…');
     const { image, name } = await loadImageFile(file);
 
     state.sourceImage = image;
     state.sourceName = name;
+    state.isSample = isSample;
     state.previewEdge = 0; // force the preview to be rebuilt at the new size
 
     document.body.classList.add('has-image');
     rebuildPreviewSources();
     viewer.resetView(); // a new photo starts fitted, not wherever the last one was
+
+    if (runAuto && state.previewSource) {
+      Object.assign(state.params, autoAdjust(state.previewSource));
+      panel.sync(state.params);
+      saveParams();
+    }
+
     scheduleRender();
   } catch (err) {
     setStatus(err.message, true);
   }
 }
+
+/**
+ * Open on a finished-looking result rather than an empty drop zone.
+ *
+ * The sample is a convenience, not a dependency: if it cannot be fetched the
+ * app simply falls back to the drop zone and everything still works.
+ */
+async function loadSample() {
+  try {
+    const res = await fetch(SAMPLE_IMAGE);
+    if (!res.ok) throw new Error(`sample unavailable (${res.status})`);
+
+    const blob = await res.blob();
+    const file = new File([blob], 'sample.jpg', { type: blob.type || 'image/jpeg' });
+
+    // Only auto-adjust for a first-time visitor. Anyone returning keeps the
+    // settings they left, which would otherwise be silently overwritten.
+    await handleFile(file, { isSample: true, autoAdjust: !hadSavedParams });
+  } catch {
+    setStatus('Drop an image to begin.');
+  }
+}
+
+loadSample();
 
 /**
  * Preview size follows the window: we render at roughly the number of device
@@ -218,6 +275,9 @@ function describe() {
 
   // Only mention zoom when there is some, so the line stays quiet at fit.
   if (viewer.zoom > 1.01) parts.push(`zoom ×${viewer.zoom.toFixed(1)}`);
+
+  // Make it obvious this is a demo photo and how to use your own.
+  if (state.isSample) parts.push('sample image — drop your own to replace');
 
   return parts.join('  ·  ');
 }
@@ -353,7 +413,10 @@ function saveParams() {
 function loadParams() {
   try {
     const raw = localStorage.getItem(STORAGE_KEY);
-    if (raw) return sanitiseParams(JSON.parse(raw));
+    if (raw) {
+      hadSavedParams = true;
+      return sanitiseParams(JSON.parse(raw));
+    }
   } catch {
     /* fall through to defaults */
   }
