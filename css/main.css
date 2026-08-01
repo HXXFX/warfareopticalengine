@@ -1,0 +1,582 @@
+/**
+ * main.css
+ *
+ * Layout is a fixed top bar plus a two-column body: image stage on the left,
+ * control sidebar on the right. Everything is driven by the custom properties
+ * in :root — change those to re-skin the app without hunting through rules.
+ */
+
+:root {
+  --bg: #17171b;
+  --bg-raised: #232329;
+  --bg-sunken: #101014;
+  --line: #55555f;
+  --line-soft: #3d3d46;
+
+  /* The stage sits at a mid grey on purpose: it is the only value that lets
+     BOTH a blown-white frame and a crushed-black one show their edge against
+     the background. A dark canvas hides black borders, a light one hides white. */
+  --stage: #77777c;
+  --stage-edge: #5f5f65;
+
+  /* Text ramp. The faintest step is the one that matters — it carries the
+     hints and the step badges, so it is held around 9:1 against the panel.
+     Anything dimmer than this reads as disabled rather than secondary. */
+  --text: #ffffff;
+  --text-dim: #dedee4;
+  --text-faint: #b6b6c0;
+
+  --accent: #f0f0f2;
+  --accent-ink: #16161a;
+  --warn: #ff8a6b;
+
+  --radius: 3px;
+  --sidebar-width: 340px;
+  --topbar-height: 56px;
+
+  --mono: ui-monospace, "SF Mono", "Cascadia Mono", Menlo, Consolas, monospace;
+  --sans: "Inter", -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, sans-serif;
+}
+
+* { box-sizing: border-box; }
+
+html, body {
+  height: 100%;
+  margin: 0;
+}
+
+body {
+  background: var(--bg);
+  color: var(--text);
+  font-family: var(--sans);
+  font-size: 13px;
+  overflow: hidden;
+  display: flex;
+  flex-direction: column;
+}
+
+.visually-hidden {
+  position: absolute;
+  width: 1px; height: 1px;
+  padding: 0; margin: -1px;
+  overflow: hidden;
+  clip: rect(0 0 0 0);
+  white-space: nowrap;
+}
+
+/* ------------------------------------------------------------------ *
+ * Top bar
+ * ------------------------------------------------------------------ */
+
+.topbar {
+  flex: 0 0 var(--topbar-height);
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: 16px;
+  padding: 0 16px;
+  background: var(--bg-raised);
+  border-bottom: 1px solid var(--line);
+}
+
+.brand {
+  display: flex;
+  align-items: center;
+  gap: 10px;
+  min-width: 0;
+}
+
+.brand__mark {
+  width: 18px;
+  height: 18px;
+  flex: none;
+  background: var(--text);
+  clip-path: polygon(50% 0, 100% 50%, 50% 100%, 0 50%);
+}
+
+.brand__name {
+  margin: 0;
+  font-family: var(--mono);
+  font-size: 15px;
+  font-weight: 600;
+  letter-spacing: 0.13em;
+  text-transform: uppercase;
+  white-space: nowrap;
+}
+
+.brand__name em {
+  font-style: normal;
+  font-weight: 400;
+  color: var(--text-faint);
+}
+
+.topbar__actions {
+  display: flex;
+  align-items: center;
+  gap: 8px;
+}
+
+/* ------------------------------------------------------------------ *
+ * Buttons
+ * ------------------------------------------------------------------ */
+
+.btn {
+  font-family: var(--mono);
+  font-size: 11px;
+  letter-spacing: 0.08em;
+  text-transform: uppercase;
+  color: var(--text);
+  background: transparent;
+  border: 1px solid var(--line);
+  border-radius: var(--radius);
+  padding: 7px 12px;
+  cursor: pointer;
+  white-space: nowrap;
+  transition: background 120ms, border-color 120ms, color 120ms;
+  user-select: none;
+}
+
+.btn:hover { background: #2c2c34; border-color: #55555f; }
+.btn:active,
+.btn.is-active { background: var(--text); color: var(--accent-ink); border-color: var(--text); }
+
+.btn--quiet { color: var(--text-dim); }
+
+.btn--accent { border-color: #4a4a52; }
+
+.btn--solid {
+  background: var(--accent);
+  color: var(--accent-ink);
+  border-color: var(--accent);
+  font-weight: 600;
+}
+.btn--solid:hover { background: #fff; border-color: #fff; }
+
+.export {
+  display: flex;
+  align-items: stretch;
+  gap: 6px;
+  margin-left: 6px;
+  padding-left: 14px;
+  border-left: 1px solid var(--line);
+}
+
+.export__format {
+  font-family: var(--mono);
+  font-size: 11px;
+  color: var(--text-dim);
+  background: var(--bg-sunken);
+  border: 1px solid var(--line);
+  border-radius: var(--radius);
+  padding: 0 8px;
+  cursor: pointer;
+}
+
+/* ------------------------------------------------------------------ *
+ * Layout
+ * ------------------------------------------------------------------ */
+
+.layout {
+  flex: 1;
+  display: grid;
+  grid-template-columns: 1fr var(--sidebar-width);
+  min-height: 0;
+}
+
+/* ------------------------------------------------------------------ *
+ * Stage
+ * ------------------------------------------------------------------ */
+
+.stage {
+  position: relative;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  background: var(--stage);
+  overflow: hidden;
+  min-width: 0;
+
+  /* The viewer handles wheel and drag itself, so the browser must not claim
+     them for scrolling. The grab/grabbing cursor is set from viewer.js. */
+  touch-action: none;
+}
+
+.stage.is-dragover::after {
+  content: "";
+  position: absolute;
+  inset: 12px;
+  border: 1px dashed rgba(0, 0, 0, 0.45);
+  border-radius: var(--radius);
+  pointer-events: none;
+}
+
+/* A hairline plus a soft drop shadow, so the frame edge is legible whether the
+   image ends in white or in black.
+   Size comes from viewer.layout() (the fit) and zoom/pan from a transform on
+   top, so no max-width here — it would fight the transform. No transition
+   either: panning must track the cursor exactly. */
+.stage__canvas {
+  display: block;
+  outline: 1px solid var(--stage-edge);
+  box-shadow: 0 10px 34px rgba(0, 0, 0, 0.45);
+  will-change: transform;
+  user-select: none;
+  -webkit-user-drag: none;
+}
+
+body:not(.has-image) .stage__canvas { display: none; }
+
+/* The stage is mid grey now, so the status line needs its own dark plate
+   rather than relying on a gradient over the background. */
+.status {
+  position: absolute;
+  left: 10px;
+  bottom: 10px;
+  margin: 0;
+  padding: 5px 9px;
+  border-radius: var(--radius);
+  font-family: var(--mono);
+  font-size: 10.5px;
+  letter-spacing: 0.06em;
+  color: var(--text-dim);
+  background: rgba(16, 16, 20, 0.86);
+  pointer-events: none;
+}
+
+.status:empty { display: none; }
+.status.is-error { color: var(--warn); }
+
+/* ------------------------------------------------------------------ *
+ * Drop zone
+ * ------------------------------------------------------------------ */
+
+/* Sits on the mid-grey stage, so everything here is dark-on-grey. */
+.dropzone {
+  position: absolute;
+  inset: 24px;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  border: 1px dashed rgba(0, 0, 0, 0.32);
+  border-radius: var(--radius);
+  cursor: pointer;
+  transition: border-color 140ms, background 140ms;
+}
+
+body.has-image .dropzone { display: none; }
+
+.dropzone:hover,
+.dropzone.is-dragover {
+  border-color: rgba(0, 0, 0, 0.55);
+  background: rgba(0, 0, 0, 0.06);
+}
+
+.dropzone__inner { text-align: center; }
+
+.dropzone__icon {
+  width: 34px;
+  height: 34px;
+  margin: 0 auto 18px;
+  border: 1px solid rgba(0, 0, 0, 0.5);
+  border-radius: var(--radius);
+  position: relative;
+}
+
+.dropzone__icon::after {
+  content: "";
+  position: absolute;
+  inset: 7px;
+  border: 1px solid rgba(0, 0, 0, 0.5);
+  border-radius: 50%;
+}
+
+.dropzone__title {
+  margin: 0 0 6px;
+  font-family: var(--mono);
+  font-size: 13px;
+  letter-spacing: 0.1em;
+  text-transform: uppercase;
+  color: #17171b;
+}
+
+.dropzone__sub {
+  margin: 0;
+  font-size: 12px;
+  color: rgba(0, 0, 0, 0.62);
+}
+
+/* ------------------------------------------------------------------ *
+ * Sidebar
+ * ------------------------------------------------------------------ */
+
+.sidebar {
+  display: flex;
+  flex-direction: column;
+  min-height: 0;
+  background: var(--bg-raised);
+  border-left: 1px solid var(--line);
+}
+
+.panel {
+  flex: 1;
+  overflow-y: auto;
+  padding: 4px 0 12px;
+  scrollbar-width: thin;
+  scrollbar-color: #303036 transparent;
+}
+
+.panel::-webkit-scrollbar { width: 9px; }
+.panel::-webkit-scrollbar-thumb {
+  background: #86868f;
+  border: 3px solid var(--bg-raised);
+  border-radius: 99px;
+}
+
+.sidebar__foot {
+  flex: none;
+  margin: 0;
+  padding: 12px 16px;
+  border-top: 1px solid var(--line-soft);
+  font-size: 11px;
+  line-height: 1.55;
+  color: var(--text-faint);
+}
+
+/* ------------------------------------------------------------------ *
+ * Control groups
+ * ------------------------------------------------------------------ */
+
+.group {
+  padding: 14px 16px 6px;
+  border-bottom: 1px solid var(--line-soft);
+}
+
+.group:last-child { border-bottom: none; }
+
+/* Numbered because the panel reads top to bottom as the editing sequence. */
+.group__title {
+  display: flex;
+  align-items: baseline;
+  gap: 8px;
+  margin: 0 0 13px;
+  font-family: var(--mono);
+  font-size: 11px;
+  font-weight: 600;
+  letter-spacing: 0.16em;
+  text-transform: uppercase;
+  color: var(--text);
+}
+
+.group__step {
+  font-size: 10px;
+  font-weight: 600;
+  letter-spacing: 0.06em;
+  color: var(--accent-ink);
+  background: var(--text-dim);
+  border-radius: 2px;
+  padding: 2px 5px;
+}
+
+/* ------------------------------------------------------------------ *
+ * Controls
+ * ------------------------------------------------------------------ */
+
+.control { margin-bottom: 15px; }
+.control.is-hidden { display: none; }
+
+.control__head {
+  display: flex;
+  align-items: center;
+  gap: 8px;
+  margin-bottom: 6px;
+}
+
+.control__label {
+  flex: 1;
+  font-size: 12.5px;
+  color: var(--text-dim);
+  transition: color 120ms;
+}
+
+.control.is-modified .control__label { color: var(--text); }
+
+.control__value {
+  font-family: var(--mono);
+  font-size: 11.5px;
+  color: var(--text-dim);
+  font-variant-numeric: tabular-nums;
+}
+
+.control.is-modified .control__value { color: var(--text); }
+
+.control__hint {
+  margin: 6px 0 0;
+  font-size: 11px;
+  line-height: 1.5;
+  color: var(--text-faint);
+}
+
+/* --- range --- */
+
+.control__range {
+  -webkit-appearance: none;
+  appearance: none;
+  display: block;
+  width: 100%;
+  height: 16px;
+  background: transparent;
+  cursor: pointer;
+  margin: 0;
+}
+
+.control__range::-webkit-slider-runnable-track {
+  height: 2px;
+  background: #86868f;
+  border-radius: 2px;
+}
+.control__range::-moz-range-track {
+  height: 2px;
+  background: #86868f;
+  border-radius: 2px;
+}
+
+.control__range::-webkit-slider-thumb {
+  -webkit-appearance: none;
+  appearance: none;
+  width: 12px;
+  height: 12px;
+  margin-top: -5px;
+  border-radius: 50%;
+  background: var(--text-dim);
+  border: none;
+  transition: background 120ms, transform 120ms;
+}
+.control__range::-moz-range-thumb {
+  width: 11px;
+  height: 11px;
+  border: none;
+  border-radius: 50%;
+  background: var(--text-dim);
+}
+
+.control__range:hover::-webkit-slider-thumb { background: var(--text); }
+.control__range:active::-webkit-slider-thumb { transform: scale(1.25); background: #fff; }
+.control__range:hover::-moz-range-thumb { background: var(--text); }
+
+.control.is-modified .control__range::-webkit-slider-thumb { background: var(--text); }
+.control.is-modified .control__range::-moz-range-thumb { background: var(--text); }
+
+.control__range:focus-visible { outline: 1px solid #4d4d55; outline-offset: 4px; }
+
+/* --- select --- */
+
+.control__select {
+  width: 100%;
+  font-family: var(--sans);
+  font-size: 12px;
+  color: var(--text);
+  background: var(--bg-sunken);
+  border: 1px solid var(--line);
+  border-radius: var(--radius);
+  padding: 7px 8px;
+  cursor: pointer;
+}
+
+.control__select:hover { border-color: #38383e; }
+.control__select:focus-visible { outline: 1px solid #4d4d55; outline-offset: 1px; }
+
+/* --- toggle --- */
+
+.control__toggle { display: none; }
+
+.switch {
+  position: relative;
+  width: 30px;
+  height: 16px;
+  flex: none;
+  border-radius: 99px;
+  background: #78788a;
+  border: 1px solid var(--line);
+  cursor: pointer;
+  transition: background 140ms, border-color 140ms;
+}
+
+.switch__knob {
+  position: absolute;
+  top: 2px;
+  left: 2px;
+  width: 10px;
+  height: 10px;
+  border-radius: 50%;
+  background: var(--text-dim);
+  transition: transform 140ms, background 140ms;
+}
+
+/* `is-on` is set by panel.js — see the note in Panel.sync(). */
+.control--toggle.is-on .switch {
+  background: var(--text);
+  border-color: var(--text);
+}
+
+.control--toggle.is-on .switch__knob {
+  transform: translateX(14px);
+  background: var(--accent-ink);
+}
+
+/* ------------------------------------------------------------------ *
+ * Export overlay
+ * ------------------------------------------------------------------ */
+
+.overlay {
+  position: fixed;
+  inset: 0;
+  display: none;
+  align-items: center;
+  justify-content: center;
+  background: rgba(6, 6, 7, 0.82);
+  backdrop-filter: blur(2px);
+  z-index: 50;
+}
+
+.overlay.is-visible { display: flex; }
+
+.overlay__box {
+  width: min(340px, 80vw);
+  padding: 22px;
+  background: var(--bg-raised);
+  border: 1px solid var(--line);
+  border-radius: var(--radius);
+}
+
+.overlay__text {
+  margin: 0 0 14px;
+  font-family: var(--mono);
+  font-size: 11px;
+  letter-spacing: 0.06em;
+  color: var(--text-dim);
+}
+
+.overlay__track {
+  height: 2px;
+  background: #2a2a30;
+  overflow: hidden;
+}
+
+.overlay__bar {
+  height: 100%;
+  width: 0;
+  background: var(--text);
+  transition: width 160ms linear;
+}
+
+/* ------------------------------------------------------------------ *
+ * Narrow screens — stack the panel under the image
+ * ------------------------------------------------------------------ */
+
+@media (max-width: 860px) {
+  body { overflow: auto; }
+  .layout { grid-template-columns: 1fr; }
+  .stage { height: 52vh; }
+  .sidebar { border-left: none; border-top: 1px solid var(--line); }
+  .topbar { flex-wrap: wrap; height: auto; flex: none; padding: 10px 12px; }
+}

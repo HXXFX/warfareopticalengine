@@ -1,0 +1,74 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="utf-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1" />
+  <title>Warfare Optical Engine</title>
+  <link rel="stylesheet" href="css/main.css" />
+</head>
+<body>
+
+  <header class="topbar">
+    <div class="brand">
+      <span class="brand__mark"></span>
+      <h1 class="brand__name">Warfare <em>Optical Engine</em></h1>
+    </div>
+
+    <div class="topbar__actions">
+      <button id="btn-auto" class="btn btn--accent" type="button" title="Analyse the image and set the tone controls">
+        Auto Adjust
+      </button>
+      <button id="btn-compare" class="btn" type="button" title="Hold to see the original (or hold Space)">
+        Hold to Compare
+      </button>
+      <button id="btn-reset" class="btn btn--quiet" type="button">Reset</button>
+
+      <div class="export">
+        <select id="format" class="export__format" title="Export format">
+          <option value="png">PNG</option>
+          <option value="jpeg">JPG</option>
+        </select>
+        <button id="btn-export" class="btn btn--solid" type="button">Download</button>
+      </div>
+    </div>
+  </header>
+
+  <main class="layout">
+
+    <section id="stage" class="stage">
+      <canvas id="canvas" class="stage__canvas"></canvas>
+
+      <div id="dropzone" class="dropzone">
+        <div class="dropzone__inner">
+          <div class="dropzone__icon"></div>
+          <p class="dropzone__title">Drop an image here</p>
+          <p class="dropzone__sub">or click to browse · you can also paste from the clipboard</p>
+        </div>
+      </div>
+
+      <p id="status" class="status"></p>
+    </section>
+
+    <aside class="sidebar">
+      <div id="panel" class="panel"></div>
+      <p class="sidebar__foot">
+        Scroll to zoom, drag to pan, double-click the image to fit.
+        Double-click any slider to reset it.
+        Everything is processed in this browser — no image is uploaded.
+      </p>
+    </aside>
+
+  </main>
+
+  <div id="overlay" class="overlay">
+    <div class="overlay__box">
+      <p id="overlay-text" class="overlay__text">Rendering…</p>
+      <div class="overlay__track"><div id="overlay-bar" class="overlay__bar"></div></div>
+    </div>
+  </div>
+
+  <input id="file-input" class="visually-hidden" type="file" accept="image/*" />
+
+  <script type="module" src="js/main.js"></script>
+</body>
+</html>
