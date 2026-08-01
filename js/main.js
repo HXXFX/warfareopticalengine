@@ -45,12 +45,6 @@ import {
 const PREVIEW_MIN = 700; // floor for the preview
 const PREVIEW_MAX = 1500; // ceiling for the preview
 const EXPORT_MAX = 8000; // guard against enormous files exhausting memory
-/**
- * Versioned: the meaning of `resolution` was inverted and `saturation` changed
- * its default, so settings saved by an older build would be misread. Bumping
- * the key retires them cleanly instead of restoring a wrong-looking image.
- */
-const STORAGE_KEY = 'warfare-optical-engine/params/v2';
 
 /**
  * Bundled image loaded at start-up so the app opens on a working result
@@ -60,14 +54,12 @@ const SAMPLE_IMAGE = 'assets/sample.jpg';
 
 /* ------------------------------------------------------------------ *
  * State
+ *
+ * Settings are deliberately NOT persisted between visits. The app always
+ * reopens on the bundled sample, and restoring parameters that were tuned for
+ * some other photo onto that sample produces an arbitrary-looking result — the
+ * landing state should always be the intended one.
  * ------------------------------------------------------------------ */
-
-/**
- * True when the user has settings from a previous visit. A first-time visitor
- * gets the sample auto-adjusted; a returning one keeps whatever they had.
- * Set by loadParams(), which runs while `state` below is being built.
- */
-let hadSavedParams = false;
 
 const state = {
   sourceImage: null,
@@ -77,7 +69,7 @@ const state = {
   previewEdge: 0,
   lastResult: null, // last processed ImageData, for the compare toggle
   lastRenderMs: 0,
-  params: loadParams(),
+  params: defaultParams(),
   frame: 0,
   exporting: false,
   cache: createRenderCache(),
@@ -114,7 +106,6 @@ viewer.onViewChange = () => setStatus(describe());
 const panel = new Panel(dom.panel, (id, value) => {
   state.params[id] = value;
   panel.sync(state.params);
-  saveParams();
   scheduleRender();
 });
 
@@ -157,11 +148,10 @@ async function handleFile(file, { isSample = false, applyPreset = false } = {}) 
     viewer.resetView(); // a new photo starts fitted, not wherever the last one was
 
     if (applyPreset) {
-      // The exact preset, not a variation — everyone should see the same
-      // intended look the first time they open the app.
+      // The exact preset, not a variation — everyone opening the app should
+      // see the same intended look.
       state.params = sanitiseParams({ ...state.params, ...BASE_PRESET });
       panel.sync(state.params);
-      saveParams();
     }
 
     scheduleRender();
@@ -184,9 +174,9 @@ async function loadSample() {
     const blob = await res.blob();
     const file = new File([blob], 'sample.jpg', { type: blob.type || 'image/jpeg' });
 
-    // Only preset a first-time visitor. Anyone returning keeps the settings
-    // they left, which would otherwise be silently overwritten.
-    await handleFile(file, { isSample: true, applyPreset: !hadSavedParams });
+    // Always presetted. The sample is the landing state, so it should look
+    // the same every time the app is opened.
+    await handleFile(file, { isSample: true, applyPreset: true });
   } catch {
     setStatus('Drop an image to begin.');
   }
@@ -300,14 +290,12 @@ dom.btnAuto.addEventListener('click', () => {
   // parameters lets it guarantee the result differs from what is on screen.
   state.params = sanitiseParams({ ...state.params, ...autoAdjust(state.params) });
   panel.sync(state.params);
-  saveParams();
   scheduleRender();
 });
 
 dom.btnReset.addEventListener('click', () => {
   state.params = defaultParams();
   panel.sync(state.params);
-  saveParams();
   scheduleRender();
 });
 
@@ -409,23 +397,14 @@ function setStatus(text, isError = false) {
   dom.status.classList.toggle('is-error', isError);
 }
 
-function saveParams() {
-  try {
-    localStorage.setItem(STORAGE_KEY, JSON.stringify(state.params));
-  } catch {
-    /* private mode / quota — not worth interrupting the user over */
-  }
-}
-
-function loadParams() {
-  try {
-    const raw = localStorage.getItem(STORAGE_KEY);
-    if (raw) {
-      hadSavedParams = true;
-      return sanitiseParams(JSON.parse(raw));
-    }
-  } catch {
-    /* fall through to defaults */
-  }
-  return defaultParams();
+/**
+ * Clear settings saved by earlier builds, which used to persist across visits.
+ * Without this, anyone who used those versions keeps dead data in their browser
+ * forever. Safe to delete once the app has been live for a while.
+ */
+try {
+  localStorage.removeItem('warfare-optical-engine/params');
+  localStorage.removeItem('warfare-optical-engine/params/v2');
+} catch {
+  /* private mode — nothing to clean up */
 }
