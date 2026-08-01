@@ -23,7 +23,7 @@
  */
 
 import { render, renderAsync, outputSize, createRenderCache } from './engine/pipeline.js';
-import { autoAdjust } from './engine/autoadjust.js';
+import { autoAdjust, BASE_PRESET } from './engine/autoadjust.js';
 import { columnsFor } from './engine/stages/resolution.js';
 import { defaultParams } from './ui/controls.js';
 import { Panel, sanitiseParams } from './ui/panel.js';
@@ -134,10 +134,10 @@ dom.btnOpen.addEventListener('click', () => dom.fileInput.click());
 /**
  * @param {File} file
  * @param {object} [opts]
- * @param {boolean} [opts.isSample]    this is the bundled image, not the user's
- * @param {boolean} [opts.autoAdjust]  run Auto Adjust once it has loaded
+ * @param {boolean} [opts.isSample]      this is the bundled image, not the user's
+ * @param {boolean} [opts.applyPreset]   load the house look once it has decoded
  */
-async function handleFile(file, { isSample = false, autoAdjust: runAuto = false } = {}) {
+async function handleFile(file, { isSample = false, applyPreset = false } = {}) {
   try {
     setStatus('Decoding…');
     const { image, name } = await loadImageFile(file);
@@ -151,8 +151,10 @@ async function handleFile(file, { isSample = false, autoAdjust: runAuto = false 
     rebuildPreviewSources();
     viewer.resetView(); // a new photo starts fitted, not wherever the last one was
 
-    if (runAuto && state.previewSource) {
-      Object.assign(state.params, autoAdjust(state.previewSource));
+    if (applyPreset) {
+      // The exact preset, not a variation — everyone should see the same
+      // intended look the first time they open the app.
+      state.params = sanitiseParams({ ...state.params, ...BASE_PRESET });
       panel.sync(state.params);
       saveParams();
     }
@@ -177,9 +179,9 @@ async function loadSample() {
     const blob = await res.blob();
     const file = new File([blob], 'sample.jpg', { type: blob.type || 'image/jpeg' });
 
-    // Only auto-adjust for a first-time visitor. Anyone returning keeps the
-    // settings they left, which would otherwise be silently overwritten.
-    await handleFile(file, { isSample: true, autoAdjust: !hadSavedParams });
+    // Only preset a first-time visitor. Anyone returning keeps the settings
+    // they left, which would otherwise be silently overwritten.
+    await handleFile(file, { isSample: true, applyPreset: !hadSavedParams });
   } catch {
     setStatus('Drop an image to begin.');
   }
@@ -289,12 +291,12 @@ function describe() {
 dom.btnAuto.addEventListener('click', () => {
   if (!state.previewSource) return setStatus('Load an image first.', true);
 
-  // Analysis runs on the untouched source, never on the processed preview.
-  Object.assign(state.params, autoAdjust(state.previewSource));
+  // A fresh variation of the house look each press. Passing the current
+  // parameters lets it guarantee the result differs from what is on screen.
+  state.params = sanitiseParams({ ...state.params, ...autoAdjust(state.params) });
   panel.sync(state.params);
   saveParams();
   scheduleRender();
-  setStatus('Auto adjusted from image histogram.');
 });
 
 dom.btnReset.addEventListener('click', () => {

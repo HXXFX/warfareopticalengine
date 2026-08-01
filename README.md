@@ -21,7 +21,8 @@ replace it.
   effects
 - **Lens** — barrel / pincushion distortion and vignette
 - **Print** — white photographic border with an optional inner keyline
-- **Auto Adjust** — reads the image histogram and sets the tone controls to suit
+- **Auto Adjust** — applies the house look, varied slightly every press, so no
+  two results are the same
 - Scroll to zoom and drag to pan for close inspection; export full resolution as
   PNG or JPG
 

@@ -1,115 +1,105 @@
 /**
- * autoadjust.js — one-click "make it look like the reference".
+ * autoadjust.js — the house look, and the variation around it.
  *
- * This is not a canned preset. It measures the image and works out how far it
- * has to be pushed to land on the target look, so a flat grey snapshot and an
- * already-punchy frame get different treatment.
+ * BASE_PRESET is the signature setting: it is what the bundled sample image
+ * loads with, and it is the anchor every Auto Adjust result is built from.
+ * If you want to re-aim the whole app, change the numbers here.
  *
- * The target, read off the reference frames:
- *   - the brightest content clips to paper white
- *   - the darkest content sits on pure black
- *   - a wide tonal spread (high standard deviation)
- *   - monochrome, heavy grain, some sensor noise, a definite vignette
+ * Auto Adjust never returns the preset verbatim. It drifts each continuous
+ * control around the preset and re-rolls the texture seed, so pressing the
+ * button repeatedly explores the look rather than snapping back to one fixed
+ * result. Which controls drift, and by how much, is DRIFT below.
  *
- * Structural choices — resolution, pixel shape, dither, lens angle, border —
- * are left alone on purpose. Those are the user's composition decisions and
- * having Auto stomp on them is infuriating.
+ * Deliberately NOT varied: pixel shape, dither, saturation and the border
+ * toggles. Those are the identity of the look — changing them would produce a
+ * different style rather than a variation of this one.
  */
 
-import { clamp, luma } from './util.js';
+/**
+ * The look. Every value is a parameter id from ui/controls.js.
+ */
+export const BASE_PRESET = {
+  // Tone
+  contrast: 15,
+  lightAreas: 30,
+  darkAreas: -30,
+  saturation: 0,
 
-/** What Auto is aiming for. Tweak these to re-aim the whole button. */
-const TARGET = {
-  spread: 0.3, // standard deviation of luminance
-  white: 0.97, // where the 99th percentile should land
-  black: 0.015, // where the 1st percentile should land
-  grain: 50,
-  noise: 20,
-  vignette: 28,
+  // Structure
+  resolution: 24,
+  pixelShape: 'hex',
+  dither: 'none',
+
+  // Texture
+  grain: 74,
+  noise: 72,
+  seed: 178,
+
+  // Lens
+  lensAngle: -17,
+  vignette: 76,
+
+  // Print
+  border: true,
+  borderWidth: 3,
+  borderKeyline: false,
 };
 
 /**
- * Measure an image. Exported separately so the UI can show a histogram later
- * without re-running the whole analysis.
+ * How far each control may drift from the preset, plus or minus.
+ *
+ * Anything not listed here is held at its preset value. Keep these modest:
+ * the point is a recognisable family of results, not a random look each time.
  */
-export function analyse(imageData) {
-  const d = imageData.data;
-  const hist = new Float64Array(256);
-  let total = 0;
+const DRIFT = {
+  contrast: 8,
+  lightAreas: 10,
+  darkAreas: 10,
+  resolution: 6,
+  grain: 14,
+  noise: 16,
+  lensAngle: 10,
+  vignette: 14,
+  borderWidth: 2,
+};
 
-  // Stride over large images — 1:4 sampling is statistically plenty and keeps
-  // Auto instant on a 40 megapixel file.
-  const pixels = d.length >> 2;
-  const stride = Math.max(1, Math.floor(pixels / 400000));
-
-  for (let i = 0; i < pixels; i += stride) {
-    const o = i << 2;
-    hist[luma(d[o], d[o + 1], d[o + 2]) | 0]++;
-    total++;
-  }
-
-  const percentile = (q) => {
-    let acc = 0;
-    const want = total * q;
-    for (let i = 0; i < 256; i++) {
-      acc += hist[i];
-      if (acc >= want) return i / 255;
-    }
-    return 1;
-  };
-
-  let mean = 0;
-  for (let i = 0; i < 256; i++) mean += (i / 255) * hist[i];
-  mean /= total;
-
-  let variance = 0;
-  for (let i = 0; i < 256; i++) {
-    const dv = i / 255 - mean;
-    variance += dv * dv * hist[i];
-  }
-  variance /= total;
-
-  return {
-    mean,
-    spread: Math.sqrt(variance),
-    p01: percentile(0.01),
-    p50: percentile(0.5),
-    p99: percentile(0.99),
-  };
+/**
+ * Triangular distribution over -1..1.
+ *
+ * Two uniforms summed favours small drifts while still reaching the extremes
+ * occasionally, so most results sit close to the preset and the odd one is
+ * more adventurous. A flat uniform makes every control feel equally random.
+ */
+function jitter() {
+  return Math.random() + Math.random() - 1;
 }
 
 /**
- * Returns a partial parameter object to merge over the current settings.
- * Takes the ORIGINAL image data, not the processed preview.
+ * Build one variation of the preset.
+ *
+ * Math.random() is fine here: this runs once per button press to choose
+ * PARAMETERS. The parameters are then fixed, and rendering stays fully
+ * deterministic — never call Math.random() inside a pipeline stage, or the
+ * preview would stop matching the export.
+ *
+ * @param {object} [previous]  the current parameters, used only to guarantee
+ *                             the new result differs from what is on screen.
+ * @returns {object} a partial parameter object to merge over the current ones.
  */
-export function autoAdjust(imageData) {
-  const stats = analyse(imageData);
+export function autoAdjust(previous = null) {
+  const patch = { ...BASE_PRESET };
 
-  // Contrast: close the gap to the target spread, with a floor so even an
-  // already-contrasty image still gets the hard reference look.
-  const spreadDeficit = (TARGET.spread - stats.spread) / TARGET.spread;
-  const contrast = clamp(Math.round(25 + spreadDeficit * 110), 25, 92);
+  for (const [id, range] of Object.entries(DRIFT)) {
+    patch[id] = Math.round(BASE_PRESET[id] + jitter() * range);
+  }
 
-  // Light areas: how far the highlights are from clipping.
-  const highlightGap = TARGET.white - stats.p99;
-  let lightAreas = clamp(Math.round(highlightGap * 260), 8, 85);
+  // A fresh texture seed on every press. This alone guarantees the grain and
+  // noise pattern is visibly different even if the numbers land close, so the
+  // button never appears to do nothing.
+  patch.seed = 1 + Math.floor(Math.random() * 999);
+  if (previous && patch.seed === previous.seed) {
+    patch.seed = (patch.seed % 999) + 1;
+  }
 
-  // Dark areas: how far the shadows are from black. Negative pulls them down.
-  const shadowExcess = stats.p01 - TARGET.black;
-  let darkAreas = -clamp(Math.round(shadowExcess * 300), 8, 80);
-
-  // A dark original needs the highlights lifted harder to get any sky at all;
-  // a bright one needs the shadows dug out harder.
-  if (stats.mean < 0.3) lightAreas = clamp(lightAreas + 18, 8, 90);
-  if (stats.mean > 0.65) darkAreas = clamp(darkAreas - 18, -90, -8);
-
-  return {
-    saturation: 0,
-    contrast,
-    lightAreas,
-    darkAreas,
-    grain: TARGET.grain,
-    noise: TARGET.noise,
-    vignette: TARGET.vignette,
-  };
+  return patch;
 }
