@@ -335,11 +335,23 @@ body.has-image .dropzone { display: none; }
 .sidebar__foot {
   flex: none;
   margin: 0;
-  padding: 12px 16px;
+  padding: 12px 16px 6px;
   border-top: 1px solid var(--line-soft);
   font-size: 11px;
   line-height: 1.55;
   color: var(--text-faint);
+}
+
+/* Attribution for the bundled sample image. Kept in the app itself, not only
+   in the README, because the image is shown to everyone who opens the page. */
+.sidebar__credit {
+  flex: none;
+  margin: 0;
+  padding: 0 16px 12px;
+  font-size: 10.5px;
+  line-height: 1.5;
+  color: var(--text-faint);
+  opacity: 0.75;
 }
 
 /* ------------------------------------------------------------------ *
