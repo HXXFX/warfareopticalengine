@@ -79,11 +79,24 @@ body {
   border-bottom: 1px solid var(--line);
 }
 
+/* The brand is a link back to this same page, so clicking it reloads the app. */
 .brand {
   display: flex;
   align-items: center;
   gap: 10px;
   min-width: 0;
+  text-decoration: none;
+  color: inherit;
+  border-radius: var(--radius);
+  transition: opacity 120ms;
+}
+
+.brand:hover { opacity: 0.68; }
+.brand:active { opacity: 0.45; }
+
+.brand:focus-visible {
+  outline: 1px solid #6a6a78;
+  outline-offset: 5px;
 }
 
 .brand__mark {

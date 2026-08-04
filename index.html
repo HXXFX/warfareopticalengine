@@ -16,10 +16,14 @@
 <body>
 
   <header class="topbar">
-    <div class="brand">
+    <!--
+      A real link to this same page rather than a JS reload handler, so
+      middle-click, ctrl-click and keyboard activation all behave normally.
+    -->
+    <a class="brand" href="./" title="Reload Warfare Optical Engine">
       <span class="brand__mark"></span>
       <h1 class="brand__name">Warfare <em>Optical Engine</em></h1>
-    </div>
+    </a>
 
     <div class="topbar__actions">
       <button id="btn-open" class="btn" type="button" title="Open an image from your computer">
