@@ -4,7 +4,7 @@ A photo filter for a high-contrast monochrome look — crushed blacks, blown
 highlights, film grain over digital noise, lens distortion and a white print
 border. It runs in your browser; there is nothing to install.
 
-### Open the app → [hxxfx.github.io/warfareopticalengine](https://hxxfx.github.io/warfareopticalengine/)
+### Open the app → [woe.windnoise.org](https://woe.windnoise.org/)
 
 It opens on a sample image with the look already applied, so you can start
 adjusting immediately.
