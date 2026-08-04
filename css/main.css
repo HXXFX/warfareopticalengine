@@ -483,6 +483,34 @@ body.has-image .dropzone { display: none; }
   color: var(--text-dim);
 }
 
+/* Sits inside the hover panel. The panel stays open while the pointer is over
+   it, and :focus-within keeps it open when this link is tabbed to. */
+.footnote__link {
+  display: inline-flex;
+  align-items: center;
+  gap: 7px;
+  font-size: 11px;
+  color: var(--text-dim);
+  text-decoration: none;
+  border-bottom: 1px solid transparent;
+  transition: color 120ms, border-color 120ms;
+}
+
+.footnote__link:hover {
+  color: var(--text);
+  border-bottom-color: var(--line);
+}
+
+.footnote__link:focus-visible {
+  outline: 1px solid #6a6a78;
+  outline-offset: 3px;
+}
+
+.footnote__glyph {
+  flex: none;
+  display: block;
+}
+
 /* ------------------------------------------------------------------ *
  * Control groups
  * ------------------------------------------------------------------ */
