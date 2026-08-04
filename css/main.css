@@ -332,26 +332,142 @@ body.has-image .dropzone { display: none; }
   border-radius: 99px;
 }
 
-.sidebar__foot {
+/* ------------------------------------------------------------------ *
+ * Footnote
+ *
+ * One line at the bottom of the sidebar that expands into a panel on hover.
+ * The panel is absolutely positioned so it costs no layout space, and it opens
+ * on :focus-within as well as :hover so it is reachable by keyboard and by tap
+ * on touch devices, where hover does not exist.
+ * ------------------------------------------------------------------ */
+
+.footnote {
+  position: relative;
   flex: none;
-  margin: 0;
-  padding: 12px 16px 6px;
   border-top: 1px solid var(--line-soft);
+}
+
+.footnote__trigger {
+  display: flex;
+  align-items: center;
+  gap: 8px;
+  width: 100%;
+  padding: 10px 16px;
+  margin: 0;
+  background: none;
+  border: none;
+  font-family: inherit;
   font-size: 11px;
-  line-height: 1.55;
+  color: var(--text-faint);
+  text-align: left;
+  cursor: help;
+  transition: color 120ms;
+}
+
+.footnote:hover .footnote__trigger,
+.footnote:focus-within .footnote__trigger {
+  color: var(--text-dim);
+}
+
+.footnote__trigger:focus-visible {
+  outline: 1px solid #4d4d55;
+  outline-offset: -2px;
+}
+
+.footnote__icon {
+  flex: none;
+  display: grid;
+  place-items: center;
+  width: 14px;
+  height: 14px;
+  border: 1px solid currentColor;
+  border-radius: 50%;
+  font-family: var(--mono);
+  font-size: 9px;
+  font-style: italic;
+  line-height: 1;
+}
+
+.footnote__panel {
+  position: absolute;
+  bottom: calc(100% + 8px);
+  left: 12px;
+  right: 12px;
+  z-index: 20;
+
+  padding: 14px 16px;
+  background: var(--bg-sunken);
+  border: 1px solid var(--line);
+  border-radius: var(--radius);
+  box-shadow: 0 14px 38px rgba(0, 0, 0, 0.6);
+
+  max-height: 60vh;
+  overflow-y: auto;
+
+  opacity: 0;
+  visibility: hidden;
+  transform: translateY(4px);
+  transition: opacity 130ms, transform 130ms, visibility 130ms;
+}
+
+/* Bridges the gap between trigger and panel so moving the pointer up into the
+   panel does not drop the hover. */
+.footnote__panel::after {
+  content: "";
+  position: absolute;
+  top: 100%;
+  left: 0;
+  right: 0;
+  height: 10px;
+}
+
+.footnote:hover .footnote__panel,
+.footnote:focus-within .footnote__panel {
+  opacity: 1;
+  visibility: visible;
+  transform: none;
+}
+
+.footnote__title {
+  margin: 0 0 7px;
+  font-family: var(--mono);
+  font-size: 9.5px;
+  font-weight: 600;
+  letter-spacing: 0.16em;
+  text-transform: uppercase;
   color: var(--text-faint);
 }
 
-/* Attribution for the bundled sample image. Kept in the app itself, not only
-   in the README, because the image is shown to everyone who opens the page. */
-.sidebar__credit {
-  flex: none;
+.footnote__title ~ .footnote__title {
+  margin-top: 14px;
+}
+
+.footnote__list {
+  display: grid;
+  grid-template-columns: auto 1fr;
+  gap: 5px 12px;
   margin: 0;
-  padding: 0 16px 12px;
-  font-size: 10.5px;
+  font-size: 11px;
+  line-height: 1.4;
+}
+
+.footnote__list dt { color: var(--text); white-space: nowrap; }
+.footnote__list dd { margin: 0; color: var(--text-faint); }
+
+.footnote__list kbd {
+  font-family: var(--mono);
+  font-size: 10px;
+  padding: 1px 4px;
+  border: 1px solid var(--line);
+  border-radius: 2px;
+  background: var(--bg-raised);
+}
+
+.footnote__text {
+  margin: 0;
+  font-size: 11px;
   line-height: 1.5;
-  color: var(--text-faint);
-  opacity: 0.75;
+  color: var(--text-dim);
 }
 
 /* ------------------------------------------------------------------ *

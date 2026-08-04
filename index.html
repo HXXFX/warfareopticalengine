@@ -62,14 +62,40 @@
 
     <aside class="sidebar">
       <div id="panel" class="panel"></div>
-      <p class="sidebar__foot">
-        Scroll to zoom, drag to pan, double-click the image to fit.
-        Double-click any slider to reset it.
-        Everything is processed in this browser — no image is uploaded.
-      </p>
-      <p class="sidebar__credit">
-        Sample image from Call of Duty gameplay footage, shown for demonstration.
-      </p>
+      <!--
+        Collapsed into a hover panel: this is reference material people read
+        once, so it should not hold vertical space permanently. Revealed on
+        hover and on keyboard focus, so it is reachable without a mouse.
+      -->
+      <div class="footnote">
+        <button class="footnote__trigger" type="button" aria-describedby="footnote-panel">
+          <span class="footnote__icon" aria-hidden="true">i</span>
+          <span>Shortcuts, privacy &amp; credits</span>
+        </button>
+
+        <div class="footnote__panel" id="footnote-panel" role="tooltip">
+          <h3 class="footnote__title">Shortcuts</h3>
+          <dl class="footnote__list">
+            <dt>Scroll</dt><dd>Zoom in and out</dd>
+            <dt>Drag</dt><dd>Pan around when zoomed in</dd>
+            <dt>Double-click image</dt><dd>Fit to the window</dd>
+            <dt>Double-click slider</dt><dd>Reset that one control</dd>
+            <dt>Hold <kbd>Space</kbd></dt><dd>Compare with the original</dd>
+          </dl>
+
+          <h3 class="footnote__title">Privacy</h3>
+          <p class="footnote__text">
+            Photos are opened, processed and saved entirely in this browser.
+            Nothing is uploaded, and nothing is kept between visits.
+          </p>
+
+          <h3 class="footnote__title">Credits</h3>
+          <p class="footnote__text">
+            Sample image from Call of Duty gameplay footage, shown for
+            demonstration only.
+          </p>
+        </div>
+      </div>
     </aside>
 
   </main>
