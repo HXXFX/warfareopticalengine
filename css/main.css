@@ -99,12 +99,11 @@ body {
   outline-offset: 5px;
 }
 
+/* Inline SVG; both the ring and the diamond use currentColor, so the whole
+   mark picks up the brand's colour and hover state as one piece. */
 .brand__mark {
-  width: 18px;
-  height: 18px;
   flex: none;
-  background: var(--text);
-  clip-path: polygon(50% 0, 100% 50%, 50% 100%, 0 50%);
+  display: block;
 }
 
 .brand__name {
@@ -484,34 +483,6 @@ body.has-image .dropzone { display: none; }
   font-size: 11px;
   line-height: 1.5;
   color: var(--text-dim);
-}
-
-/* Sits inside the hover panel. The panel stays open while the pointer is over
-   it, and :focus-within keeps it open when this link is tabbed to. */
-.footnote__link {
-  display: inline-flex;
-  align-items: center;
-  gap: 7px;
-  font-size: 11px;
-  color: var(--text-dim);
-  text-decoration: none;
-  border-bottom: 1px solid transparent;
-  transition: color 120ms, border-color 120ms;
-}
-
-.footnote__link:hover {
-  color: var(--text);
-  border-bottom-color: var(--line);
-}
-
-.footnote__link:focus-visible {
-  outline: 1px solid #6a6a78;
-  outline-offset: 3px;
-}
-
-.footnote__glyph {
-  flex: none;
-  display: block;
 }
 
 /* Closing plate. Uppercase letterspaced mono so it reads as a stamped marking
