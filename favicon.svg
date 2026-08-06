@@ -1,0 +1,20 @@
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 32 32">
+  <!--
+    The app mark on a dark tile. The tile is not decoration: without it the
+    white mark vanishes against a light browser tab strip.
+
+    Two deliberate departures from the toolbar mark in index.html:
+
+      - The ring is stroked at 2 rather than 1.05. At 16px the toolbar weight
+        lands under one device pixel and disappears; a favicon needs heavier
+        geometry than a logo.
+      - Everything is inset to leave a margin inside the tile.
+
+    The gap between the diamond's tips and the ring's inner edge is kept at the
+    same proportion as the logo (0.28 of the inner radius). Scale the ring and
+    the diamond together or they collide.
+  -->
+  <rect width="32" height="32" rx="7" fill="#17171b"/>
+  <circle cx="16" cy="16" r="11" fill="none" stroke="#ffffff" stroke-width="2"/>
+  <path d="M16 8.8 19.4 16 16 23.2 12.6 16Z" fill="#ffffff"/>
+</svg>
