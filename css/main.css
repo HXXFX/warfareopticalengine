@@ -518,6 +518,15 @@ body.has-image .dropzone { display: none; }
   outline-offset: 3px;
 }
 
+/* The copyright line is the widest thing in the panel — 270px against the
+   281px available on desktop. Below about 360px of viewport it would wrap into
+   a ragged block, so tighten the tracking instead and keep it one stamp. */
+@media (max-width: 380px) {
+  .footnote__plate {
+    letter-spacing: 0.1em;
+  }
+}
+
 /* ------------------------------------------------------------------ *
  * Control groups
  * ------------------------------------------------------------------ */
