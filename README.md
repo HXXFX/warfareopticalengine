@@ -101,13 +101,20 @@ stored between visits.
 
 ## Licence
 
-Source code is released under the [MIT Licence](LICENSE) — free to use, modify
-and distribute, including commercially, provided the copyright notice is kept.
+Copyright © 2026 HXXFX. All rights reserved. See [LICENSE](LICENSE).
 
-Copyright © 2026 HXXFX.
+The app is free to use and the source is here to be read. It is **not** open
+source: it may not be copied, modified, redistributed, incorporated into other
+projects, or used as AI training data without written permission.
 
-**The sample image is not covered by that licence.** `assets/sample.jpg` is a
-frame from Call of Duty gameplay footage
-([source video](https://youtu.be/j_F2jgnQVcE)), included purely to demonstrate
-the filter. All rights to that footage remain with their respective owners. If
-you reuse this project, replace the sample image with one of your own.
+**You may** use the app at [woe.windnoise.org](https://woe.windnoise.org/) and
+read the code in this repository.
+
+**Your images are yours.** Photos you open are processed entirely in your
+browser and never uploaded. No rights are claimed over anything you put in or
+export out.
+
+**The sample image is not mine to license.** `assets/sample.jpg` is a frame
+from Call of Duty gameplay footage
+([source video](https://youtu.be/j_F2jgnQVcE)), bundled only to demonstrate the
+filter. All rights in that footage remain with their respective owners.

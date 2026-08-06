@@ -1,21 +1,51 @@
-MIT License
+Copyright (c) 2026 HXXFX. All rights reserved.
 
-Copyright (c) 2026 HXXFX
+The software, designs, and other assets in this repository (together, "the
+Work") are the exclusive property of the copyright holder, except as noted
+under THIRD-PARTY MATERIAL below. The Work is published so that it can be used
+and looked at, not so that it can be taken.
 
-Permission is hereby granted, free of charge, to any person obtaining a copy
-of this software and associated documentation files (the "Software"), to deal
-in the Software without restriction, including without limitation the rights
-to use, copy, modify, merge, publish, distribute, sublicense, and/or sell
-copies of the Software, and to permit persons to whom the Software is
-furnished to do so, subject to the following conditions:
+YOU MAY:
 
-The above copyright notice and this permission notice shall be included in all
-copies or substantial portions of the Software.
+  - Use the Work by visiting the hosted application at
+    https://woe.windnoise.org/
+  - Read the source code in this repository.
 
-THE SOFTWARE IS PROVIDED "AS IS", WITHOUT WARRANTY OF ANY KIND, EXPRESS OR
-IMPLIED, INCLUDING BUT NOT LIMITED TO THE WARRANTIES OF MERCHANTABILITY,
-FITNESS FOR A PARTICULAR PURPOSE AND NONINFRINGEMENT. IN NO EVENT SHALL THE
-AUTHORS OR COPYRIGHT HOLDERS BE LIABLE FOR ANY CLAIM, DAMAGES OR OTHER
-LIABILITY, WHETHER IN AN ACTION OF CONTRACT, TORT OR OTHERWISE, ARISING FROM,
-OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE
-SOFTWARE.
+YOU MAY NOT, without prior written permission from the copyright holder:
+
+  - Copy, reproduce, republish, mirror, or redistribute the Work or any part
+    of it.
+  - Modify the Work, or create derivative or adapted works from it.
+  - Incorporate the Work, or any part of it, into any other project, product,
+    or service, whether commercial or non-commercial.
+  - Use the Work, or any part of it, as training data for, or as input to,
+    any machine learning or artificial intelligence system.
+  - Claim authorship of the Work, or present it as your own.
+  - Remove, obscure, or alter this notice.
+
+No licence, right, or permission is granted except as expressly stated above.
+All rights not expressly granted are reserved by the copyright holder.
+
+YOUR IMAGES: photographs and other images you open in the hosted application
+are processed entirely within your own browser and are never uploaded. The
+copyright holder claims no rights whatsoever in the images you supply or in
+the results you export from them. Those remain yours.
+
+THIRD-PARTY MATERIAL: the file assets/sample.jpg is a frame from Call of Duty
+gameplay footage (https://youtu.be/j_F2jgnQVcE), bundled solely to demonstrate
+the filter. It is not the property of the copyright holder, is not part of the
+Work, and is not licensed by this notice. All rights in that footage remain
+with their respective owners.
+
+Note on GitHub: hosting this repository publicly on GitHub necessarily permits
+other GitHub users to view and to fork it within GitHub, because GitHub's Terms
+of Service require that of public repositories. Nothing in that mechanism grants
+any of the rights withheld above, and forking does not confer permission to use,
+modify, publish, or redistribute the Work.
+
+THE WORK IS PROVIDED "AS IS", WITHOUT WARRANTY OF ANY KIND, EXPRESS OR IMPLIED,
+INCLUDING BUT NOT LIMITED TO THE WARRANTIES OF MERCHANTABILITY, FITNESS FOR A
+PARTICULAR PURPOSE, AND NONINFRINGEMENT. IN NO EVENT SHALL THE COPYRIGHT HOLDER
+BE LIABLE FOR ANY CLAIM, DAMAGES, OR OTHER LIABILITY, WHETHER IN AN ACTION OF
+CONTRACT, TORT, OR OTHERWISE, ARISING FROM, OUT OF, OR IN CONNECTION WITH THE
+WORK OR THE USE OR OTHER DEALINGS IN THE WORK.
